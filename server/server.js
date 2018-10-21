@@ -8,9 +8,12 @@ var option = require('./option');
 var dbConnention = require('./dbconnention');
 
 
+var connObj = new dbConnention('127.0.0.1','3306','root','abc@123','my_test');
+var connection = connObj.getConn();
+
 var app = express();
 app.get('/',function(req,res){
-    res.send("hello,world!");
+    res.sendFile(__dirname+"/html/index.html");
 });
 
 app.listen(3000,function(){
@@ -20,8 +23,7 @@ app.listen(3000,function(){
 
 
 
-var connObj = new dbConnention('127.0.0.1','3306','root','abc@123','my_test');
-var connection = connObj.getConn();
+
 
 
 
