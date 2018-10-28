@@ -53,7 +53,7 @@ class Option{
         }
         else if(type == 2)
         {
-            return "/f10/gszl_"+arg0+".html#01f01";
+            return "/f10/gszl_"+arg0+".html";
         }
         return "";
     }

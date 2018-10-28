@@ -1,10 +1,26 @@
 <html>
     <head>
         <title>test</title>
+        <script typet="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
     </head>
     <body>
-        <button>
-            dd
+        <button id="btn_update_plate">
+            更新板块公司
+        </button>
+        <button id="btn_update_date">
+            更新上市时间
         </button>
     </body>
 </html>
+<script>
+    $('#btn_update_plate').click(function () {
+        $.post("/update_plate",function(data){
+            alert(data);
+        })
+    })
+    $('#btn_update_date').click(function () {
+        $.post("/update_date",function(data){
+            alert(data);
+        })
+    })
+</script>

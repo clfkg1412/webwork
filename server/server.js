@@ -16,19 +16,120 @@ app.get('/',function(req,res){
     res.sendFile(__dirname+"/html/index.html");
 });
 
+app.post('/update_plate',function(req,res){
+    console.log("update_plate");
+    var opt = new option(1,"","");
+    var options = opt.getOption();
+    var update_plate_req = http.request(options,function(update_plate_res){
+        var body = '';
+        var header=update_plate_res.headers;
+        console.log('STATUS: ' + update_plate_res.statusCode); 
+        console.log('HEADERS: ' + JSON.stringify(update_plate_res.headers)); 
+        update_plate_res.setEncoding('utf8'); 
+        update_plate_res.on('data', function (chunk) { 
+            body += chunk;
+        }); 
+    
+        update_plate_res.on('end',function(){
+            //解析
+           
+            var arrList = loadPlateInfo(body);
+            //
+            //插入第一类
+            connection.query("select * FROM plate_dic",function (err,dbRet) {
+              if(err)
+              {
+                  console.log(err.message);
+                  res.send("error!");
+              } 
+              else
+              {
+                insertPlate2DB(arrList,0,dbRet);
+                res.send("SUCCESS!");
+              }
+                
+            });
+        });
+    
+    });
+    
+    update_plate_req.on('error', function (e) { 
+        console.log('problem with request: ' + e.message);
+        res.send("error!");
+    }); 
+    update_plate_req.end();
+    
+});
+
+app.post("/update_date",function(req,res){
+
+    insertCompanyDate();
+    res.send("");
+});
+
 app.listen(3000,function(){
     console.log("app is running!!");
 
-})
+});
 
 
 
 
+var insertCompanyDate =function(){
+    var cachList;
+    connection.query("select company_code from company_dic",function (err,dbRet) {
+        if(err)
+        {
+            console.log(err.message);
+        } 
+        else
+        {
+            cachList = dbRet;
+            for (let index = 0; index < cachList.length; index++) {
+                const element = cachList[index];
+                var opt = new option(2,element.company_code,"");
+                var options = opt.getOption();
+                var update_date_req = http.request(options,function(update_date_res){
+                    var body = '';
+                    var header=update_date_res.headers;
+                    console.log('STATUS: ' + update_date_res.statusCode); 
+                    console.log('HEADERS: ' + JSON.stringify(update_date_res.headers)); 
+                    update_date_res.setEncoding('utf8'); 
+                    update_date_res.on('data', function (chunk) { 
+                        body += chunk;
+                    }); 
+                
+                    update_date_res.on('end',function(){
+                        console.log(body);
+                        var reg = /<tr>\r\n\s*<td class=\"td_label\">成立日期<\/td>\r\n\s*<td>(.*)<\/td>\r\n\s*<\/tr>\r\n/gi;
+                        /*var reg = "<tr>\r\n"
+                                +"\s*<td class=\"td_label\">成立日期</td>\r\n"
+                                +"\s*<td>(.*)</td>\r\n"
+                                +"\s*</tr>\r\n"
+                                +"\s*<tr>\r\n"
+                                +"\s*<td class=\"td_label\">上市日期</td>"
+                                +"\s*<td>(.*)</td>"
+                                +"\s*</tr>";*/
 
 
 
-var opt = new option(1,"","");
-var options = opt.getOption();
+                    });
+                });
+                
+                update_date_req.on('error', function (e) { 
+                    console.log('problem with request: ' + e.message);
+                    res.send("error!");
+                }); 
+                update_date_req.end();
+                
+            }
+        }
+    });
+
+}
+
+
+
 var loadPlateInfo = function(content)
 {
     var result = content.match(/<tr><a name=.*<\/td><\/tr>/g);
@@ -191,7 +292,7 @@ var insertCompany2DB = function (arrList,nIndex,cachList) {
         insertCompany2DB(arrList,nIndex,cachList);
     }
 }
-
+/*
 var req = http.request(options,function(res){
     var body = '';
     var header=res.headers;
@@ -234,3 +335,4 @@ req.on('error', function (e) {
 
    
 req.end();
+*/
